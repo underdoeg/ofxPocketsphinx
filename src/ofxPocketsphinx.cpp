@@ -13,8 +13,7 @@ void ofxPocketsphinx::setup(std::string hmm, std::string lm, std::string dict){
 }
 
 void ofxPocketsphinx::setup(std::map<std::string, std::string>& params){
-	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", "-logfn", "/dev/null", "-rawlogdir", ofToDataPath("log/").c_str(), NULL);
-
+	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", "-logfn", "/dev/null", NULL); //"-rawlogdir", ofToDataPath("log/").c_str(),
 
 
 	for(auto param: params){
@@ -124,7 +123,7 @@ void ofxPocketsphinx::draw(){
 	ofNoFill();
 	ofBeginShape();
 	for (unsigned int i = 0; i < buffer.size(); i++){
-		ofVertex(i*2, 100 -buffer[i]*.005f);
+		ofVertex(i, 100 -buffer[i]*.005f);
 	}
 	ofEndShape(false);
 	ofPopMatrix();
