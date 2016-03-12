@@ -85,6 +85,10 @@ void ofxPocketsphinx::process(){
 
 			finalText = ps_get_hyp_final(ps, &finalProbability);
 
+			static EventArgs args(finalText);
+			args.sentence = finalText;
+			ofNotifyEvent(onResult, args);
+
 			if (ps_start_utt(ps) < 0)
 				ofLogFatalError("ofxPocketsphinx") << "Failed to start utterance";
 			uttStarted = false;
@@ -114,6 +118,17 @@ void ofxPocketsphinx::draw(){
 	curText += "\n\n";
 	curText += "RESULT: "+getResultText()+"\nRESULT PROBABILITY: "+ofToString(getResultProbability());
 	ofDrawBitmapStringHighlight(curText, ofVec2f(30, 30));
+
+	ofPushMatrix();
+	ofTranslate(30, 100);
+	ofNoFill();
+	ofBeginShape();
+	for (unsigned int i = 0; i < buffer.size(); i++){
+		ofVertex(i*2, 100 -buffer[i]*.005f);
+	}
+	ofEndShape(false);
+	ofPopMatrix();
+
 	ofPopStyle();
 }
 

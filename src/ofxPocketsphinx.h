@@ -7,7 +7,16 @@
 class ofxPocketsphinx
 {
 public:
-    ofxPocketsphinx();
+	class EventArgs: public ofEventArgs{
+	public:
+		EventArgs(std::string s){
+			sentence = s;
+		}
+
+		std::string sentence;
+	};
+
+	ofxPocketsphinx();
 
 	void setup(std::string hmm="/usr/share/pocketsphinx/model/en-us/en-us", std::string lm="/usr/share/pocketsphinx/model/en-us/en-us.lm.bin", std::string dict="/usr/share/pocketsphinx/model/en-us/cmudict-en-us.dict");
 	void setup(std::map<std::string, std::string>& params);
@@ -23,6 +32,8 @@ public:
 	int getResultProbability();
 
 	void draw();
+
+	ofEvent<EventArgs> onResult;
 
 private:
 	void process();

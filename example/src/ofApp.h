@@ -12,6 +12,8 @@ public:
 	void update();
 	void draw();
 
+	void onResult(ofxPocketsphinx::EventArgs& args);
+
 	void keyPressed(int key);
 	void keyReleased(int key);
 	void mouseMoved(int x, int y );
@@ -29,4 +31,7 @@ public:
 	ofxPocketsphinx sphinx;
 
 	ofSoundStream soundStream;
+	std::string currentResult;
+	ofTrueTypeFont font;
+	int wordCounter;
 };

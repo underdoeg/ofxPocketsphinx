@@ -11,9 +11,16 @@ void ofApp::setup(){
 	settings.numOutputChannels = 0;
 	settings.numInputChannels = 1;
 	settings.bufferSize = BUFFER_SIZE;
+	settings.setApi(ofSoundDevice::Api::PULSE);
 	soundStream.setup(settings);
 
 	ofSetFrameRate(60);
+
+	font.load("Arial.ttf", 50);
+
+	ofAddListener(sphinx.onResult, this, &ofApp::onResult);
+
+	ofSetBackgroundColor(30);
 }
 
 //--------------------------------------------------------------
@@ -30,6 +37,16 @@ void ofApp::audioIn(ofSoundBuffer &input){
 //--------------------------------------------------------------
 void ofApp::draw(){
 	sphinx.draw();
+
+	if(wordCounter>0){
+		font.drawString(currentResult, ofGetWidth()*.5-font.stringWidth(currentResult)*.5, ofGetHeight()*.6);
+		wordCounter--;
+	}
+}
+
+void ofApp::onResult(ofxPocketsphinx::EventArgs &args){
+	currentResult = args.sentence;
+	wordCounter = 100;
 }
 
 //--------------------------------------------------------------
