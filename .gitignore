@@ -1,0 +1,7 @@
+*.user
+build-*
+*.so
+*.raw
+example/bin/example
+example_debug
+example/obj/*
