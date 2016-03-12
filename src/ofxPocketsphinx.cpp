@@ -6,9 +6,9 @@ ofxPocketsphinx::ofxPocketsphinx(){
 
 void ofxPocketsphinx::setup(std::string hmm, std::string lm, std::string dict){
 	std::map<std::string, std::string> params;
-	params["-hmm"] = hmm;
-	params["-lm"] = lm;
-	params["-dict"] = dict;
+	params["-hmm"] = ofToDataPath(hmm);
+	params["-lm"] = ofToDataPath(lm);
+	params["-dict"] = ofToDataPath(dict);
 	setup(params);
 }
 
