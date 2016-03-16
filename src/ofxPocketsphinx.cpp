@@ -18,11 +18,24 @@ void ofxPocketsphinx::setup(std::string hmm, std::string lm, std::string dict){
 }
 
 void ofxPocketsphinx::setup(std::map<std::string, std::string>& params){
-	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", "-logfn", "/dev/null", NULL); //"-rawlogdir", ofToDataPath("log/").c_str(),
+	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", NULL); //"-rawlogdir", ofToDataPath("log/").c_str(),
 
+	params["-logfn"] = "/dev/null";
 
 	for(auto param: params){
-		cmd_ln_set_str_extra_r(config, param.first.c_str(), param.second.c_str());
+		float val = -999;
+		try {
+			val = std::stof(param.second);
+		} catch (exception e) {
+
+		}
+
+		if(val!=-999)
+			cmd_ln_set_float_r(config, param.first.c_str(), val);
+		else if(param.second == "no" || param.second == "yes")
+			cmd_ln_set_boolean_r(config, param.first.c_str(), (param.second=="yes"));
+		else
+			cmd_ln_set_str_extra_r(config, param.first.c_str(), param.second.c_str());
 	}
 
 	ps = ps_init(config);
@@ -111,7 +124,14 @@ void ofxPocketsphinx::process(){
 		const char* ct = ps_get_hyp(ps, &currentProbability);
 		if(ct){
 			currentText = ct;
+
+			/*
+			auto lat = ps_get_lattice(ps);
+			if(lat)
+				ps_lattice_write(lat, ofToDataPath("log.log").c_str());
+			*/
 		}
+
 
 		if(!uttStarted){
 			uttStarted = true;
@@ -166,22 +186,24 @@ int ofxPocketsphinx::getResultProbability(){
 	return finalProbability;
 }
 
-void ofxPocketsphinx::draw(){
+void ofxPocketsphinx::draw(bool drawAudioBuffer){
 	ofPushStyle();
 	std::string curText = "CURRENT: "+getContinuousText()+"\nCURRENT PROBABILITY: "+ofToString(getContinuousProbability());
 	curText += "\n\n";
 	curText += "RESULT: "+getResultText()+"\nRESULT PROBABILITY: "+ofToString(getResultProbability());
 	ofDrawBitmapStringHighlight(curText, ofVec2f(30, 30));
 
-	ofPushMatrix();
-	ofTranslate(30, 100);
-	ofNoFill();
-	ofBeginShape();
-	for (unsigned int i = 0; i < buffer.size(); i++){
-		ofVertex(i, 100 - buffer[i]*.005f);
+	if(drawAudioBuffer){
+		ofPushMatrix();
+		ofTranslate(30, 60);
+		ofNoFill();
+		ofBeginShape();
+		for (unsigned int i = 0; i < buffer.size(); i++){
+			ofVertex(i, 100 - buffer[i]*.005f);
+		}
+		ofEndShape(false);
+		ofPopMatrix();
 	}
-	ofEndShape(false);
-	ofPopMatrix();
 
 	ofPopStyle();
 }

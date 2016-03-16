@@ -19,13 +19,18 @@ public:
 			int32 languageBackoffMode;
 		};
 
-		std::string getHighestRatedWord(){
+		Word getHighestRatedWord(){
 			int32 curScore = std::numeric_limits<int32>::max();
-			std::string ret;
+			Word ret;
+			ret.acousticScore = curScore;
 			for(auto& w: words){
-				if(w.acousticScore < curScore){
-					curScore = w.acousticScore;
-					ret = w.word;
+				if(w.acousticScore < ret.acousticScore){
+					//curScore = w.acousticScore;
+					ret = w;
+				}else if(w.acousticScore == ret.acousticScore){
+					if(w.languageScore < ret.languageScore){
+						ret = w;
+					}
 				}
 			}
 			return ret;
@@ -60,7 +65,7 @@ public:
 	std::string getResultText();
 	int getResultProbability();
 
-	void draw();
+	void draw(bool drawAudioBuffer=true);
 
 	ofEvent<EventArgs> onResult;
 
