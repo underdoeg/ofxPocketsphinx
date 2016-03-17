@@ -2,6 +2,7 @@
 
 ofxPocketsphinx::ofxPocketsphinx(){
 	srcState = nullptr;
+	ps = nullptr;
 }
 
 ofxPocketsphinx::~ofxPocketsphinx(){
@@ -18,9 +19,10 @@ void ofxPocketsphinx::setup(std::string hmm, std::string lm, std::string dict){
 }
 
 void ofxPocketsphinx::setup(std::map<std::string, std::string>& params){
-	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", NULL); //"-rawlogdir", ofToDataPath("log/").c_str(),
+	config = cmd_ln_init(NULL, ps_args(), True, "-samprate", "16000", NULL);
 
 	params["-logfn"] = "/dev/null";
+	//params["-rawlogdir"] = ofToDataPath("log/");
 
 	for(auto param: params){
 		float val = -999;
@@ -58,6 +60,8 @@ void ofxPocketsphinx::audioIn(float *data, int numSamples, long sampleRate){
 
 	if(sampleRate != bufferSampleRate){
 
+		float dataCpy[numSamples];
+		memcpy(dataCpy, data, numSamples*sizeof(float));
 		float dataOut[numSamples];
 
 		if(srcState == nullptr){
@@ -66,7 +70,7 @@ void ofxPocketsphinx::audioIn(float *data, int numSamples, long sampleRate){
 		}
 
 		SRC_DATA srcData;
-		srcData.data_in = data;
+		srcData.data_in = dataCpy;
 		srcData.data_out = dataOut;
 		srcData.input_frames = numSamples;
 		srcData.output_frames = numSamples;//bufferSampleRate / sampleRate;
@@ -108,6 +112,11 @@ void ofxPocketsphinx::audioIn(short *data, int numSamples, long sampleRate){
 }
 
 void ofxPocketsphinx::process(){
+	if(buffer.size() == 0 || ps == nullptr){
+		ofLogWarning("ofxPocketsphinx") << "Error processing";
+		return;
+	}
+
 	int res = ps_process_raw(ps, buffer.data(), buffer.size(), FALSE, FALSE);
 	if(res<0){
 		ofLogWarning("ofxPocketsphinx") << "Error processing";
@@ -156,7 +165,7 @@ void ofxPocketsphinx::process(){
 					}
 				}
 
-				static EventArgs args;
+				EventArgs args;
 				args.sentence = finalText;
 				args.words = words;
 				args.probability = ps_get_prob(ps);
